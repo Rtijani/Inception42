@@ -1,0 +1,62 @@
+version: "3.9"
+
+services:
+  mariadb:
+    container_name: mariadb
+    image: mariadb:latest  
+    restart: always
+    networks:
+      - docker-network
+    volumes:
+      - mariadb_data:/var/lib/mysql 
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - 3306:3306 
+  nginx:
+    container_name: nginx
+    image: nginx:alpine 
+    restart: always
+    depends_on:
+      - wordpress
+    networks:
+      - docker-network
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./php/fastcgi_params:/etc/nginx/fastcgi_params
+      - wordpress_data:/var/www/html 
+      - ./certs:/etc/nginx/ssl
+    ports:
+      - "443:443"
+    environment:
+      CERTS_KEY: /etc/nginx/ssl/certificate.key
+      CERTS_CRT: /etc/nginx/ssl/certificate.crt
+
+  wordpress:
+    container_name: wordpress
+    image: wordpress:latest 
+    restart: always
+    networks:
+      - docker-network
+    volumes:
+      - wordpress_data:/var/www/html 
+    depends_on:
+      - mariadb
+    environment:
+      WORDPRESS_DB_HOST: mariadb
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+    ports:
+      - "9000"  
+
+volumes:
+  wordpress_data:  
+  mariadb_data:    
+
+networks:
+  docker-network:
+    driver: bridge
