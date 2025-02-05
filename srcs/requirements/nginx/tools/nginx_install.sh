@@ -4,12 +4,14 @@
 # Check if certificates exist. Generate if not (useful for initial setup)
 if [ ! -f /etc/nginx/ssl/certificate.key ] || [ ! -f /etc/nginx/ssl/certificate.crt ]; then
   echo "Certificates not found. Generating self-signed certificates..."
+  mkdir -p /etc/nginx/ssl
   openssl req -x509 -sha256 -nodes \
       -newkey rsa:4096 \
       -days 365 \
       -subj "/C=BR/ST=Sao Paulo/L=Sao Paulo/O=42SP/OU=Inception/CN=cado-car.42.fr" \
       -keyout /etc/nginx/ssl/certificate.key \
       -out /etc/nginx/ssl/certificate.crt
+      chmod 600 /etc/nginx/ssl/certificate.key
 fi
 
 # Check if TLSv1.3 is enabled. If not, enable it. 
