@@ -10,7 +10,7 @@
 #                                                                              #
 # **************************************************************************** #
 
-NAME = Inception
+NAME = inception
 SRCS = ./srcs/
 DOCKER_COMPOSE := $(SRCS)docker-compose.yml
 ENV := $(SRCS).env
