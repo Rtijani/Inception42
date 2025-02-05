@@ -12,6 +12,7 @@ if [ ! -f /etc/nginx/ssl/certificate.key ] || [ ! -f /etc/nginx/ssl/certificate.
       -keyout /etc/nginx/ssl/certificate.key \
       -out /etc/nginx/ssl/certificate.crt
       chmod 600 /etc/nginx/ssl/certificate.key
+      chmod 644 /etc/nginx/ssl/certificate.crt
 fi
 
 # Check if TLSv1.3 is enabled. If not, enable it. 
