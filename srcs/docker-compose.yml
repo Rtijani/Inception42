@@ -18,7 +18,7 @@ services:
       - 3306:3306 
   nginx:
     container_name: nginx
-    image: nginx:alpine 
+    image: nginx:alpine:latest
     restart: always
     depends_on:
       - wordpress
