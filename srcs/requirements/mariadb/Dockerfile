@@ -12,7 +12,7 @@
 
 FROM alpine:3.20.0
 
-RUN	apt update && \
+RUN	apk update && \
 	apk add --no-cache mariadb mariadb-client mariadb-server-utils
 
 RUN mkdir -p /var/lib/mysql
@@ -20,9 +20,9 @@ RUN mkdir -p /var/lib/mysql
 
 EXPOSE 3306
 
-COPY conf/mariadb.conf /etc/mysql/mariadb.conf
+COPY ./conf/mariadb.conf /etc/mysql/mariadb.conf
 
-COPY init.sql /docker-entrypoint-initdb.d/
+COPY init.sql /docker-entrypoint-initdb.d/init.sql
 
 VOLUME /var/lib/mysql
 
