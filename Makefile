@@ -12,38 +12,36 @@
 
 NAME = inception
 SRCS = ./srcs/
-DOCKER_COMPOSE := ./srcs/docker-compose.yml
-ENV := srcs/.env
-DATA_DIR := $(HOME)/data
+DOCKER_COMPOSE := $(SRCS)docker-compose.yml  # Use variable for consistency
+ENV := $(SRCS).env                     # Use variable for consistency
+DATA_DIR := $(HOME)/data                # Good practice to keep this configurable
 
-all:
-	docker compose -f ./srcs/docker-compose.yml up -d --build
+all: up                                  # Simpler "all" target
+
 up:
-	docker compose -p $(NAME) -f $(COMPOSE) up --env-file $(ENV) -d
+        docker compose -p $(NAME) -f $(DOCKER_COMPOSE) --env-file $(ENV) up -d --build
 
 down:
-	docker compose -f ./srcs/docker-compose.yml --env-file $(ENV) down
+        docker compose -p $(NAME) -f $(DOCKER_COMPOSE) --env-file $(ENV) down
 
 start:
-	docker compose -p $(NAME) start
+        docker compose -p $(NAME) -f $(DOCKER_COMPOSE) --env-file $(ENV) start
 
 stop:
-	docker compose -p $(NAME) stop
+        docker compose -p $(NAME) -f $(DOCKER_COMPOSE) --env-file $(ENV) stop
 
 clean-images:
-	docker rmi -f $$(docker images -q) || true
+        docker images | grep -oE '^[a-f0-9]+' | xargs -I {} docker rmi -f {} || true
 
 clean: down clean-images
 
 fclean: clean
-	echo "cleaning all configurations in docker"
-	@sudo rm -rf /home/rtijani/data
-	@docker system prune --all --force --volumes
-	@docker system prune
-	@docker network prune --force
-	@sudo rm -rf /home/rtijani/data/mariadb/*
-	@sudo rm -rf /home/rtijani/data/wordpress/*
+        @echo "Cleaning all configurations in docker and data directory..."
+        @rm -rf $(DATA_DIR)
+        @docker system prune --all --force --volumes
+        @docker system prune --force
+        @docker network prune --force
 
 re: fclean all
 
-.PHONY: all re down clean
+.PHONY: all up down start stop clean clean-images fclean re
