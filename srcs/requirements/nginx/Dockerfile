@@ -21,7 +21,7 @@ ENV CERTS_CRT /etc/nginx/ssl/certificate.crt
  
 COPY nginx_install.sh /usr/local/bin/nginx_install.sh
 
-COPY ./conf/srcs/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY ./conf/nginx.conf /etc/nginx/nginx.conf
 
 RUN chmod +x /usr/local/bin/nginx_install.sh
 
