@@ -1,28 +1,15 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Dockerfile                                         :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: rtijani <rtijani@student.42.fr>            +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2025/01/16 09:42:38 by rtijani           #+#    #+#              #
-#    Updated: 2025/01/17 16:04:27 by rtijani          ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
+FROM debian:bullseye
 
-FROM alpine:3.20.0
+RUN apt-get update && apt-get install -y mariadb-server mariadb-client
 
-RUN	apk update && \
-	apk add --no-cache mariadb-server mariadb-client
- 
-RUN chmod +x /etc/mariadb.conf.sh
+RUN mkdir workspace
 
-EXPOSE 3306
+WORKDIR /workspace
 
-COPY ./conf/mariadb.conf /etc/mysql/mariadb.conf
+COPY ./tools/installer.sh .
 
-COPY init.sql /docker-entrypoint-initdb.d/init.sql
+COPY ./conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
 
-VOLUME /var/lib/mysql
+RUN chmod +x installer.sh
 
-CMD ["mysqld"]
+CMD ["./installer.sh"]

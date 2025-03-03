@@ -1,47 +1,36 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: rtijani <rtijani@student.42.fr>            +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2025/01/16 09:39:59 by rtijani           #+#    #+#              #
-#    Updated: 2025/01/17 12:38:10 by rtijani          ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
+all:
+	@mkdir -p /home/rtijani/data/wordpress
+	@mkdir -p /home/rtijani/data/mariadb
+	@mkdir -p /home/rtijani/data/redis
+	@docker-compose -f ./srcs/docker-compose.yml up -d --build
 
-NAME = inception
-SRCS = ./srcs/
-DOCKER_COMPOSE := $(SRCS)docker-compose.yml
-ENV := $(SRCS).env
-DATA_DIR := $(HOME)/data
+down : 
+	@docker-compose -f ./srcs/docker-compose.yml down
 
-all:	up
+stop : 
+	@docker-compose -f ./srcs/docker-compose.yml stop
 
-up:
-	docker compose -p $(NAME) -f $(DOCKER_COMPOSE) --env-file $(ENV) up -d --build
+start : 
+	@docker-compose -f ./srcs/docker-compose.yml start
 
-down:
-	docker compose -p $(NAME) -f $(DOCKER_COMPOSE) --env-file $(ENV) down
+status : 
+	@docker ps
 
-start:
-	docker compose -p $(NAME) -f $(DOCKER_COMPOSE) --env-file $(ENV) start
+clean: down
+	@printf "Cleaning configuration ${name}...\n"
+	@docker system prune -a
+	@sudo rm -rf ~/data/mariadb/*
+	@sudo rm -rf ~/data/wordpress/*
 
-stop:
-	docker compose -p $(NAME) -f $(DOCKER_COMPOSE) --env-file $(ENV) stop
-
-clean-images:
-	docker images | grep -oE '^[a-f0-9]+' | xargs -I {} docker rmi -f {} || true
-
-clean: down clean-images
-
-fclean: clean
-	@echo "Cleaning all configurations in docker and data directory..."
-	@rm -rf $(DATA_DIR)
+fclean:
+	@printf "Total clean of all configurations docker\n"
+	@docker stop $$(docker ps -qa)
 	@docker system prune --all --force --volumes
-	@docker system prune --force
 	@docker network prune --force
+	@docker volume prune --force
+	@sudo rm -rf ~/data/wordpress/*
+	@sudo rm -rf ~/data/mariadb/*
 
-re: fclean all
+re: down all
 
-.PHONY: all up down start stop clean clean-images fclean re
+.PHONY: all down re
